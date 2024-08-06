@@ -4,6 +4,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import databaseConfig from '../config/database.config';
 import { User } from './users/models/user.model';
+import { BooksModule } from './books/books.module';
+import { Book } from './books/models/book.model';
 
 @Module({
   imports: [
@@ -32,12 +34,13 @@ import { User } from './users/models/user.model';
           },
         },
         database: configService.get('DATABASE.NAME'),
-        models: [User],
+        models: [User, Book],
         logging: false,
       }),
       inject: [ConfigService],
     }),
     UsersModule,
+    BooksModule,
   ],
   controllers: [],
   providers: [],
