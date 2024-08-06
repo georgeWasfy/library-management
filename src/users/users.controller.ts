@@ -17,7 +17,7 @@ import {
 } from './dto/user.schema';
 import { ValidationPipe } from '@base/pipes/validation.pipe';
 
-@Controller('users')
+@Controller({ version: '1', path: 'users' })
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -38,8 +38,10 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @UsePipes(new ValidationPipe(UpdateUserSchema))
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserType) {
+  async update(
+    @Param('id') id: string,
+    @Body(new ValidationPipe(UpdateUserSchema)) updateUserDto: UpdateUserType,
+  ) {
     return await this.usersService.update(+id, updateUserDto);
   }
 

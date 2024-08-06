@@ -1,10 +1,10 @@
-import { Model } from 'sequelize';
 import {
   Table,
   Column,
   DataType,
   CreatedAt,
   UpdatedAt,
+  Model,
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true, tableName: 'users' })

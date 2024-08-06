@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import databaseConfig from '../config/database.config';
+import { User } from './users/models/user.model';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import databaseConfig from '../config/database.config';
           },
         },
         database: configService.get('DATABASE.NAME'),
-        models: [],
+        models: [User],
         logging: false,
       }),
       inject: [ConfigService],

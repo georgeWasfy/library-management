@@ -19,6 +19,7 @@ export const up: Migration = async ({ context: sequelize }) => {
     },
     is_active: {
       type: DataTypes.BOOLEAN,
+      defaultValue: true,
     },
     created_at: {
       type: DataTypes.DATE,
