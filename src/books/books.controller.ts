@@ -7,15 +7,19 @@ import {
   Param,
   Delete,
   UsePipes,
+  Query,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import {
+  BookQuerySchema,
+  BookQueryType,
   CreateBookSchema,
   CreateBookType,
   UpdateBookSchema,
   UpdateBookType,
 } from './dto/book.schema';
 import { ValidationPipe } from '@base/pipes/validation.pipe';
+import { TransformationPipe } from '@base/pipes/transformation.pipe';
 
 @Controller({ version: '1', path: 'books' })
 export class BooksController {
@@ -28,8 +32,11 @@ export class BooksController {
   }
 
   @Get()
-  async findAll() {
-    return await this.booksService.list();
+  async findAll(
+    @Query(new TransformationPipe(), new ValidationPipe(BookQuerySchema))
+    query: BookQueryType,
+  ) {
+    return await this.booksService.list(query.filters, query.page);
   }
 
   @Get(':id')
