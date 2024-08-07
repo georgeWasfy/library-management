@@ -6,6 +6,7 @@ import databaseConfig from '../config/database.config';
 import { User } from './users/models/user.model';
 import { BooksModule } from './books/books.module';
 import { Book } from './books/models/book.model';
+import { Borrowings } from './borrowings/models/borrowing.model';
 
 @Module({
   imports: [
@@ -34,7 +35,7 @@ import { Book } from './books/models/book.model';
           },
         },
         database: configService.get('DATABASE.NAME'),
-        models: [User, Book],
+        models: [User, Book, Borrowings],
         logging: false,
       }),
       inject: [ConfigService],

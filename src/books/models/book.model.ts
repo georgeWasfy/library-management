@@ -1,3 +1,4 @@
+import { Borrowings } from '@base/borrowings/models/borrowing.model';
 import {
   Table,
   Column,
@@ -5,6 +6,7 @@ import {
   CreatedAt,
   UpdatedAt,
   Model,
+  HasMany,
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true, tableName: 'books' })
@@ -34,6 +36,9 @@ export class Book extends Model {
 
   @Column(DataType.NUMBER)
   available_quantity: number;
+
+  @HasMany(() => Borrowings)
+  borrowers: Borrowings[];
 
   @CreatedAt
   created_at: Date;

@@ -1,3 +1,4 @@
+import { Borrowings } from '@base/borrowings/models/borrowing.model';
 import {
   Table,
   Column,
@@ -5,6 +6,7 @@ import {
   CreatedAt,
   UpdatedAt,
   Model,
+  HasMany,
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true, tableName: 'users' })
@@ -23,6 +25,9 @@ export class User extends Model {
   @Column(DataType.STRING)
   email: string;
 
+  @HasMany(() => Borrowings)
+  borrowed_books: Borrowings[];
+  
   @Column({ type: DataType.BOOLEAN })
   is_active: boolean;
 
