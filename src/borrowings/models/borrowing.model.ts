@@ -38,9 +38,6 @@ export class Borrowings extends Model {
   @Column({ type: DataType.BOOLEAN })
   is_returned: boolean;
 
-  @Column({ type: DataType.BOOLEAN })
-  is_overdue: boolean;
-
   @Column(DataType.DATE)
   due_date: Date;
 

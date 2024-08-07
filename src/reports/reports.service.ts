@@ -13,7 +13,6 @@ export class ReportsService {
     'user_id',
     'book_id',
     'is_returned',
-    'is_overdue',
     'return_date',
     'due_date',
     'created_at',

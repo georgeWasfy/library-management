@@ -150,9 +150,6 @@ export class UsersService {
         {
           return_date: Date.now(),
           is_returned: true,
-          is_overdue: literal(
-            'CASE WHEN CURDATE() > due_date THEN 1 ELSE 0 END',
-          ),
         },
         {
           where: { user_id: id, book_id: { [Op.in]: book_ids } },
