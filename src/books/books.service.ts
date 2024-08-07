@@ -13,6 +13,7 @@ import {
 } from './dto/book.schema';
 import { Meta, PaginatedRequestType } from '@base/schema/helpers.schema';
 import { Borrowings } from '@base/borrowings/models/borrowing.model';
+import { User } from '@base/users/models/user.model';
 
 @Injectable()
 export class BooksService {
@@ -22,6 +23,7 @@ export class BooksService {
       as: 'borrowers',
       where: { is_returned: false },
       required: false,
+      include: [{model: User, as: 'user'}]
     },
   ];
   constructor(private readonly sequelize: Sequelize) {}

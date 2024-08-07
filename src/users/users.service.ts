@@ -15,6 +15,15 @@ import { literal, Op } from 'sequelize';
 
 @Injectable()
 export class UsersService {
+  private defaultInclude = [
+    {
+      model: Borrowings,
+      as: 'borrowed_books',
+      where: { is_returned: false },
+      required: false,
+      include: [{ model: Book, as: 'book' }],
+    },
+  ];
   constructor(private readonly sequelize: Sequelize) {}
   async create(createUserDto: CreateUserType): Promise<User> {
     const emailExist = await User.findOne({
@@ -40,8 +49,9 @@ export class UsersService {
 
   async find(id: number): Promise<User | null> {
     try {
-      return await User.findByPk(id);
+      return await User.findByPk(id, { include: this.defaultInclude });
     } catch (error) {
+      console.log('🚀 ~ UsersService ~ find ~ error:', error);
       throw new BadRequestException(`Unable to find user with id ${id}`);
     }
   }
