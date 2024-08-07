@@ -51,7 +51,6 @@ export class UsersService {
     try {
       return await User.findByPk(id, { include: this.defaultInclude });
     } catch (error) {
-      console.log('🚀 ~ UsersService ~ find ~ error:', error);
       throw new BadRequestException(`Unable to find user with id ${id}`);
     }
   }

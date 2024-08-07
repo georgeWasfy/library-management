@@ -30,6 +30,7 @@ export const BookFiltersSchema = z.object({
   title: z.string().optional(),
   author: z.string().optional(),
   isbn: z.number().optional(),
+  is_overdue: z.boolean().optional()
 });
 
 export const BookQuerySchema = z.object({

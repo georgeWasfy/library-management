@@ -14,18 +14,17 @@ import {
 import { Meta, PaginatedRequestType } from '@base/schema/helpers.schema';
 import { Borrowings } from '@base/borrowings/models/borrowing.model';
 import { User } from '@base/users/models/user.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class BooksService {
-  private defaultInclude = [
-    {
-      model: Borrowings,
-      as: 'borrowers',
-      where: { is_returned: false },
-      required: false,
-      include: [{model: User, as: 'user'}]
-    },
-  ];
+  private defaultInclude = {
+    model: Borrowings,
+    as: 'borrowers',
+    where: { is_returned: false },
+    required: false,
+    include: [{ model: User, as: 'user' }],
+  };
   constructor(private readonly sequelize: Sequelize) {}
   async create(createBookDto: CreateBookType): Promise<Book> {
     try {
@@ -48,9 +47,23 @@ export class BooksService {
   }> {
     let defaultWhere = undefined;
     let defaultPaging = undefined;
+    let defaultInclude = this.defaultInclude;
     try {
       if (filters && Object.keys(filters).length > 0) {
         defaultWhere = this.parseFilters(filters);
+        if (filters?.is_overdue !== undefined) {
+          defaultInclude = {
+            ...defaultInclude,
+            required: true,
+            where: {
+              ...defaultInclude.where,
+              //@ts-ignore
+              due_date: filters.is_overdue
+                ? { [Op.lt]: Date.now() }
+                : { [Op.gt]: Date.now() },
+            },
+          };
+        }
       }
       if (
         pagination &&
@@ -64,11 +77,12 @@ export class BooksService {
       }
       const total = await Book.count({
         ...defaultWhere,
+        include: defaultInclude,
       });
       const books = await Book.findAll({
         ...defaultWhere,
         ...defaultPaging,
-        include: this.defaultInclude,
+        include: defaultInclude,
       });
       return {
         data: books,
