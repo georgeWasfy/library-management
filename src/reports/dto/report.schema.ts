@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const ReportFiltersSchema = z.object({
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
-  // is_overdue: z.boolean().optional()
+  is_overdue: z.boolean().optional()
 });
 
 export const ReportQuerySchema = z.object({

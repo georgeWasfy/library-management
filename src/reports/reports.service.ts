@@ -26,6 +26,11 @@ export class ReportsService {
     if (filters.to) {
       defaultWhere['created_at'] = { [Op.lte]: filters.to };
     }
+    if (filters.is_overdue !== undefined) {
+      defaultWhere['due_date'] = filters.is_overdue
+        ? { [Op.lt]: Date.now() }
+        : { [Op.gt]: Date.now() };
+    }
     const books = await Borrowings.findAll({
       where: defaultWhere,
       attributes: this.attributes,
