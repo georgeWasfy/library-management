@@ -26,6 +26,7 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/sequelize": "^10.0.1",
+    "@nestjs/throttler": "^6.0.0",
     "exceljs": "^4.4.0",
     "module-alias": "^2.2.2",
     "mysql2": "^3.11.0",

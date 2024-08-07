@@ -8,6 +8,7 @@ import { BooksModule } from './books/books.module';
 import { Book } from './books/models/book.model';
 import { Borrowings } from './borrowings/models/borrowing.model';
 import { ReportsModule } from './reports/reports.module';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -44,6 +45,12 @@ import { ReportsModule } from './reports/reports.module';
     UsersModule,
     BooksModule,
     ReportsModule,
+    ThrottlerModule.forRoot([
+      {
+        ttl: 2000,
+        limit: 1,
+      },
+    ]),
   ],
   controllers: [],
   providers: [],

@@ -9,12 +9,14 @@ import {
   Header,
   Res,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { Response } from 'express';
 import { TransformationPipe } from '@base/pipes/transformation.pipe';
 import { ValidationPipe } from '@base/pipes/validation.pipe';
 import { ReportFiltersSchema, ReportQueryType } from './dto/report.schema';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller({ version: '1', path: 'reports' })
 export class ReportsController {
@@ -28,6 +30,7 @@ export class ReportsController {
     return await this.reportsService.generate(query.filters);
   }
 
+  @UseGuards(ThrottlerGuard)
   @Get(':id/download')
   @Header('Content-Type', 'text/xlsx')
   async download(@Param('id') id: string, @Res() res: Response) {
