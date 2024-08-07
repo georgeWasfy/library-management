@@ -7,6 +7,7 @@ import { User } from './users/models/user.model';
 import { BooksModule } from './books/books.module';
 import { Book } from './books/models/book.model';
 import { Borrowings } from './borrowings/models/borrowing.model';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { Borrowings } from './borrowings/models/borrowing.model';
     }),
     UsersModule,
     BooksModule,
+    ReportsModule,
   ],
   controllers: [],
   providers: [],
