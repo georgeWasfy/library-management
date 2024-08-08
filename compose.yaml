@@ -1,0 +1,42 @@
+version: "3.5"
+services:
+  backend:
+    build: .
+    container_name: project_be
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+        - DB_NAME=${DB_NAME}
+        - DB_HOST_READ=${DB_HOST_READ}
+        - DB_HOST_WRITE=${DB_HOST_WRITE}
+        - DB_PORT=${DB_PORT}
+        - DB_USER=${DB_USER}
+        - DB_PASS=${DB_PASS}
+  db:
+      image: mysql:8
+      container_name: project_db
+      hostname: project_db
+      restart: unless-stopped
+      environment:
+        - MYSQL_ROOT_PASSWORD=${DB_PASS}
+        - MYSQL_DATABASE=${DB_NAME}
+      volumes:
+        - mysql-data:/var/lib/mysql:rw
+        - ./src/db/config:/etc/mysql/conf.d
+        - /tmp:/tmp:delegated
+      ports:
+        - ${MYSQL_MAPPED_PORT}:3306
+      healthcheck:
+        test: "/usr/bin/mysql --user=root --password=${DB_PASS} --execute \"SHOW DATABASES;\""
+        interval: 30s
+        timeout: 20s
+        retries: 20
+
+volumes:
+  mysql-data:
+    external: false
+
+
