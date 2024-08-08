@@ -16,6 +16,7 @@ export const up: Migration = async ({ context: sequelize }) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true
     },
     is_active: {
       type: DataTypes.BOOLEAN,

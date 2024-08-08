@@ -10,8 +10,8 @@ services:
       - "3000:3000"
     environment:
         - DB_NAME=${DB_NAME}
-        - DB_HOST_READ=${DB_HOST_READ}
-        - DB_HOST_WRITE=${DB_HOST_WRITE}
+        - DB_HOST_READ=${DOCKER_DB_HOST_READ}
+        - DB_HOST_WRITE=${DOCKER_DB_HOST_WRITE}
         - DB_PORT=${DB_PORT}
         - DB_USER=${DB_USER}
         - DB_PASS=${DB_PASS}

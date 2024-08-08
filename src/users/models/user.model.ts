@@ -26,7 +26,7 @@ export class User extends Model {
   email: string;
 
   @HasMany(() => Borrowings)
-  borrowed_books: Borrowings[];
+  borrowings: Borrowings[];
   
   @Column({ type: DataType.BOOLEAN })
   is_active: boolean;

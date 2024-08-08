@@ -38,7 +38,7 @@ export class Book extends Model {
   available_quantity: number;
 
   @HasMany(() => Borrowings)
-  borrowers: Borrowings[];
+  borrowings: Borrowings[];
 
   @CreatedAt
   created_at: Date;

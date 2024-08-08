@@ -8,6 +8,7 @@ import {
   Delete,
   UsePipes,
   Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
 import {
@@ -36,14 +37,18 @@ export class BooksController {
     @Query(new TransformationPipe(), new ValidationPipe(BookQuerySchema))
     query: BookQueryType,
   ) {
-    return await this.booksService.list(query.filters, query.page);
+    return await this.booksService.list(query.filters, query.paging);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.booksService.find(+id);
+    const book = await this.booksService.find(+id);
+    if (!book) {
+      throw new NotFoundException('Book Not Found');
+    }
+    return book;
   }
-  
+
   @Patch(':id')
   async update(
     @Param('id') id: string,

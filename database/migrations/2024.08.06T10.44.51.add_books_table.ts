@@ -20,6 +20,7 @@ export const up: Migration = async ({ context: sequelize }) => {
     isbn: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      unique: true
     },
     total_quantity: {
       type: DataTypes.INTEGER,

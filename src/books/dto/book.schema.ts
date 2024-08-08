@@ -35,7 +35,7 @@ export const BookFiltersSchema = z.object({
 
 export const BookQuerySchema = z.object({
   filters: BookFiltersSchema.optional(),
-  page: PaginatedRequestSchema.optional(),
+  paging: PaginatedRequestSchema.optional(),
 });
 
 export type CreateBookType = z.infer<typeof CreateBookSchema>;

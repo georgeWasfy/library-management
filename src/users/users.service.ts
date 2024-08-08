@@ -11,45 +11,72 @@ import {
 } from './dto/user.schema';
 import { Borrowings } from '@base/borrowings/models/borrowing.model';
 import { Book } from '@base/books/models/book.model';
-import { literal, Op } from 'sequelize';
+import { ValidationError, literal, Op } from 'sequelize';
+import { Meta, PaginatedRequestType } from '@base/schema/helpers.schema';
 
 @Injectable()
 export class UsersService {
   private defaultInclude = [
     {
       model: Borrowings,
-      as: 'borrowed_books',
+      as: 'borrowings',
       where: { is_returned: false },
       required: false,
       include: [{ model: Book, as: 'book' }],
     },
   ];
   constructor(private readonly sequelize: Sequelize) {}
-  async create(createUserDto: CreateUserType): Promise<User> {
-    const emailExist = await User.findOne({
-      where: { email: createUserDto.email },
-    });
-    if (emailExist) {
-      throw new BadRequestException('This email already exist');
-    }
+  async create(
+    createUserDto: CreateUserType,
+  ): Promise<{ data: { user: User } }> {
     try {
-      return await User.create(createUserDto);
+      const user = await User.create(createUserDto);
+      return { data: { user } };
     } catch (error) {
+      if (error instanceof ValidationError) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          throw new BadRequestException('This email already exist');
+        }
+      }
       throw new BadRequestException('Unable to create user');
     }
   }
 
-  async list(): Promise<User[]> {
+  async list(pagination?: PaginatedRequestType): Promise<{
+    data: User[];
+    meta: Meta;
+  }> {
     try {
-      return await User.findAll();
+      let defaultPaging = undefined;
+      if (
+        pagination &&
+        pagination.page !== null &&
+        pagination.per_page !== null
+      ) {
+        defaultPaging = {
+          offset: (pagination.page - 1) * pagination.per_page,
+          limit: pagination.per_page,
+        };
+      }
+      const total = await User.count();
+      const users = await User.findAll({ ...defaultPaging });
+      return {
+        data: users,
+        meta: {
+          total,
+          current_page: pagination?.page ?? null,
+          per_page: pagination?.per_page ?? null,
+        },
+      };
     } catch (error) {
       throw new BadRequestException('Unable to list users');
     }
   }
 
-  async find(id: number): Promise<User | null> {
+  async find(id: number): Promise<{ data: { user: User } } | null> {
     try {
-      return await User.findByPk(id, { include: this.defaultInclude });
+      const user = await User.findByPk(id, { include: this.defaultInclude });
+      return user ? { data: { user } } : null;
     } catch (error) {
       throw new BadRequestException(`Unable to find user with id ${id}`);
     }
@@ -58,7 +85,7 @@ export class UsersService {
   async update(
     id: number,
     updateUserDto: UpdateUserType,
-  ): Promise<User | null> {
+  ): Promise<{ data: { user: User } } | null> {
     try {
       const [affectedCount] = await User.update(updateUserDto, {
         where: { id },
@@ -66,15 +93,21 @@ export class UsersService {
       if (affectedCount === 0) {
         throw new NotFoundException(`User with id: ${id} not found`);
       }
-      return await User.findByPk(id);
+      const user = await User.findByPk(id);
+      return user ? { data: { user } } : null;
     } catch (error) {
+      if (error instanceof ValidationError) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          throw new BadRequestException('This email already exist');
+        }
+      }
       throw new BadRequestException(`Unable to update user with id ${id}`);
     }
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: number): Promise<{ data: { removed: boolean } }> {
     const destroyedRows = await User.destroy({ where: { id } });
-    return destroyedRows > 0;
+    return { data: { removed: destroyedRows > 0 } };
   }
 
   async borrow(

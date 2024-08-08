@@ -1,3 +1,4 @@
+import { PaginatedRequestSchema } from '@base/schema/helpers.schema';
 import { z } from 'zod';
 
 export const UserResourceSchema = z
@@ -11,30 +12,34 @@ export const UserResourceSchema = z
   })
   .required();
 
-  export const BorrowBooksBodySchema = z
-    .object({
-      borrowings: z
-        .array(
-          z.object({
-            book_id: z.number(),
-            due_date: z.coerce.date(),
-          }),
-        )
-        .min(1),
-    })
-    .required();
+export const BorrowBooksBodySchema = z
+  .object({
+    borrowings: z
+      .array(
+        z.object({
+          book_id: z.number(),
+          due_date: z.coerce.date(),
+        }),
+      )
+      .min(1),
+  })
+  .required();
 
-  export const CreateUserSchema = UserResourceSchema.omit({
-    is_active: true,
-    id: true,
-    created_at: true,
-    updated_at: true,
-  });
+export const CreateUserSchema = UserResourceSchema.omit({
+  is_active: true,
+  id: true,
+  created_at: true,
+  updated_at: true,
+});
 
-  export const UpdateUserSchema = CreateUserSchema.partial();
+export const UserQuerySchema = z.object({
+  paging: PaginatedRequestSchema.optional(),
+});
 
-  export type CreateUserType = z.infer<typeof CreateUserSchema>;
-  export type UpdateUserType = z.infer<typeof UpdateUserSchema>;
-  export type UserResourceType = z.infer<typeof UserResourceSchema>;
-  export type BorrowBooksBodyType = z.infer<typeof BorrowBooksBodySchema>;
+export const UpdateUserSchema = CreateUserSchema.partial();
 
+export type CreateUserType = z.infer<typeof CreateUserSchema>;
+export type UpdateUserType = z.infer<typeof UpdateUserSchema>;
+export type UserResourceType = z.infer<typeof UserResourceSchema>;
+export type BorrowBooksBodyType = z.infer<typeof BorrowBooksBodySchema>;
+export type UserQueryType = z.infer<typeof UserQuerySchema>;

@@ -14,26 +14,34 @@ import {
 import { Meta, PaginatedRequestType } from '@base/schema/helpers.schema';
 import { Borrowings } from '@base/borrowings/models/borrowing.model';
 import { User } from '@base/users/models/user.model';
-import { Op } from 'sequelize';
+import { Op, ValidationError } from 'sequelize';
 
 @Injectable()
 export class BooksService {
   private defaultInclude = {
     model: Borrowings,
-    as: 'borrowers',
+    as: 'borrowings',
     where: { is_returned: false },
     required: false,
     include: [{ model: User, as: 'user' }],
   };
   constructor(private readonly sequelize: Sequelize) {}
-  async create(createBookDto: CreateBookType): Promise<Book> {
+  async create(
+    createBookDto: CreateBookType,
+  ): Promise<{ data: { book: Book } }> {
     try {
       const data = {
         ...createBookDto,
         available_quantity: createBookDto.total_quantity,
       };
-      return await Book.create(data);
+      const book = await Book.create(data);
+      return { data: { book } };
     } catch (error) {
+      if (error instanceof ValidationError) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          throw new BadRequestException('A book with same ISBN already exists');
+        }
+      }
       throw new BadRequestException('Unable to create Book');
     }
   }
@@ -97,9 +105,10 @@ export class BooksService {
     }
   }
 
-  async find(id: number): Promise<Book | null> {
+  async find(id: number): Promise<{ data: { book: Book } } | null> {
     try {
-      return await Book.findByPk(id);
+      const book = await Book.findByPk(id);
+      return book ? { data: { book } } : null;
     } catch (error) {
       throw new BadRequestException(`Unable to find Book with id ${id}`);
     }
@@ -108,7 +117,7 @@ export class BooksService {
   async update(
     id: number,
     updateBookDto: UpdateBookType,
-  ): Promise<Book | null> {
+  ): Promise<{ data: { book: Book } } | null> {
     const book = await Book.findByPk(id);
     if (!book) {
       throw new NotFoundException(`Book with id: ${id} not found`);
@@ -122,15 +131,24 @@ export class BooksService {
       const [affectedCount] = await Book.update(updateBookDto, {
         where: { id },
       });
-      return await Book.findByPk(id);
+      if (affectedCount === 0) {
+        throw new NotFoundException(`Book with id: ${id} not found`);
+      }
+      const book = await Book.findByPk(id);
+      return book ? { data: { book } } : null;
     } catch (error) {
+      if (error instanceof ValidationError) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          throw new BadRequestException('A book with same ISBN already exists');
+        }
+      }
       throw new BadRequestException(`Unable to update Book with id ${id}`);
     }
   }
 
-  async remove(id: number): Promise<boolean> {
+  async remove(id: number): Promise<{ data: { removed: boolean } }> {
     const destroyedRows = await Book.destroy({ where: { id } });
-    return destroyedRows > 0;
+    return { data: { removed: destroyedRows > 0 } };
   }
 
   isValidAvailability(bookToUpdate: UpdateBookType, book: Book) {

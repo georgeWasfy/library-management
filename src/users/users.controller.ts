@@ -8,6 +8,8 @@ import {
   Delete,
   UsePipes,
   BadRequestException,
+  Query,
+  NotFoundException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -17,8 +19,11 @@ import {
   CreateUserType,
   UpdateUserSchema,
   UpdateUserType,
+  UserQuerySchema,
+  UserQueryType,
 } from './dto/user.schema';
 import { ValidationPipe } from '@base/pipes/validation.pipe';
+import { TransformationPipe } from '@base/pipes/transformation.pipe';
 
 @Controller({ version: '1', path: 'users' })
 export class UsersController {
@@ -31,13 +36,20 @@ export class UsersController {
   }
 
   @Get()
-  async findAll() {
-    return await this.usersService.list();
+  async findAll(
+    @Query(new TransformationPipe(), new ValidationPipe(UserQuerySchema))
+    query: UserQueryType,
+  ) {
+    return await this.usersService.list(query.paging);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return await this.usersService.find(+id);
+    const user = await this.usersService.find(+id);
+    if (!user) {
+      throw new NotFoundException('Book Not Found');
+    }
+    return user;
   }
 
   @Patch(':id')
