@@ -9,6 +9,7 @@ import { Book } from './books/models/book.model';
 import { Borrowings } from './borrowings/models/borrowing.model';
 import { ReportsModule } from './reports/reports.module';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
         limit: 1,
       },
     ]),
+    AuthModule
   ],
   controllers: [],
   providers: [],

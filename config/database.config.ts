@@ -21,15 +21,6 @@ export const dbConfig: { [key: string]: Connection } = {
         pass: env('DB_PASS'),
         name: env('DB_NAME'),
     },
-    // test: {
-    //     driver: 'mysql',
-    //     hostRead: env('DB_TEST_HOST_READ'),
-    //     hostWrite: env('DB_TEST_HOST_WRITE'),
-    //     port: env('DB_PORT'),
-    //     user: env('DB_TEST_USER'),
-    //     pass: env('DB_TEST_PASS'),
-    //     name: env('DB_TEST_NAME'),
-    // },
 };
 
 export default registerAs('DATABASE', () => {

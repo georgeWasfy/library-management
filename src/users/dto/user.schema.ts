@@ -10,6 +10,8 @@ export const UserResourceSchema = z
     is_active: z.boolean(),
     created_at: z.date(),
     updated_at: z.date(),
+    password: z.string(),
+    hashedRt: z.string(),
   })
   .required();
 
@@ -42,6 +44,7 @@ export const CreateUserSchema = UserResourceSchema.omit({
   id: true,
   created_at: true,
   updated_at: true,
+  hashedRt: true
 });
 
 export const UserQuerySchema = z.object({

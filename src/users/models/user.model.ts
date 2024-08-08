@@ -7,9 +7,16 @@ import {
   UpdatedAt,
   Model,
   HasMany,
+  DefaultScope,
 } from 'sequelize-typescript';
 
 @Table({ timestamps: true, tableName: 'users' })
+
+@DefaultScope(() => ({
+  attributes: {
+    exclude: ['password', 'hashedRt']
+  }
+}))
 export class User extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -25,9 +32,15 @@ export class User extends Model {
   @Column(DataType.STRING)
   email: string;
 
+  @Column(DataType.STRING)
+  password: string;
+
+  @Column(DataType.STRING)
+  hashedRt: string;
+
   @HasMany(() => Borrowings)
   borrowings: Borrowings[];
-  
+
   @Column({ type: DataType.BOOLEAN })
   is_active: boolean;
 
