@@ -1,6 +1,7 @@
 import { PaginatedRequestSchema } from '@base/schema/helpers.schema';
 import { z } from 'zod';
 
+const now = new Date();
 export const UserResourceSchema = z
   .object({
     id: z.number(),
@@ -18,10 +19,21 @@ export const BorrowBooksBodySchema = z
       .array(
         z.object({
           book_id: z.number(),
-          due_date: z.coerce.date(),
+          due_date: z.coerce
+            .date()
+            .min(
+              now,
+              `The due date cannot be earlier than ${now.toISOString()}`,
+            ),
         }),
       )
       .min(1),
+  })
+  .required();
+
+export const ReturnBooksBodySchema = z
+  .object({
+    books: z.array(z.number()).min(1),
   })
   .required();
 
@@ -43,3 +55,4 @@ export type UpdateUserType = z.infer<typeof UpdateUserSchema>;
 export type UserResourceType = z.infer<typeof UserResourceSchema>;
 export type BorrowBooksBodyType = z.infer<typeof BorrowBooksBodySchema>;
 export type UserQueryType = z.infer<typeof UserQuerySchema>;
+export type ReturnBooksBodyType = z.infer<typeof ReturnBooksBodySchema>;

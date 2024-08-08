@@ -125,7 +125,24 @@ export class UsersService {
     const transaction = await this.sequelize.transaction();
     const book_ids = borrowings.map((b) => b.book_id);
     try {
-      //step1: check for books availability
+      //step1: check if user already has the books borrowed
+      const userAlreadyBorrowed = await Borrowings.findAll({
+        where: {
+          user_id: id,
+          book_id: { [Op.in]: book_ids },
+          is_returned: false
+        },
+        transaction,
+      });
+      if (userAlreadyBorrowed.length > 0) {
+        await transaction.commit();
+        return [
+          [],
+          'Some of the books are already borowed by the user... please check the user borrowings',
+        ];
+      }
+
+      //step2: check for books availability
       const booksAvailability = await Book.findAll({
         where: {
           available_quantity: { [Op.gt]: 0 },
@@ -141,11 +158,11 @@ export class UsersService {
         ];
       }
 
-      //step2: create borrowing transaction
+      //step3: create borrowing transaction
       const created_borrowings = await Borrowings.bulkCreate(borrowings, {
         transaction,
       });
-      //step3: decrement available_quantity by one
+      //step4: decrement available_quantity by one
       await Book.update(
         {
           available_quantity: literal('available_quantity - 1'),
@@ -165,18 +182,13 @@ export class UsersService {
 
   async restore(
     id: number,
-    borrowings: {
-      book_id: number;
-      user_id: number;
-      due_date: Date;
-    }[],
+    books: number[],
   ): Promise<[number, string | null]> {
     const user = await this.find(id);
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
     const transaction = await this.sequelize.transaction();
-    const book_ids = borrowings.map((b) => b.book_id);
     try {
       //step1: update borrowing transaction
       const [affectedCount] = await Borrowings.update(
@@ -185,7 +197,7 @@ export class UsersService {
           is_returned: true,
         },
         {
-          where: { user_id: id, book_id: { [Op.in]: book_ids } },
+          where: { user_id: id, book_id: { [Op.in]: books } },
           transaction,
         },
       );
@@ -195,7 +207,7 @@ export class UsersService {
           available_quantity: literal('available_quantity + 1'),
         },
         {
-          where: { id: { [Op.in]: book_ids } },
+          where: { id: { [Op.in]: books } },
           transaction,
         },
       );

@@ -27,7 +27,8 @@ export class ReportsController {
     @Query(new TransformationPipe(), new ValidationPipe(ReportFiltersSchema))
     query: ReportQueryType,
   ) {
-    return await this.reportsService.generate(query.filters);
+    const fileId = await this.reportsService.generate(query.filters);
+    return {data: {fileId}}
   }
 
   @UseGuards(ThrottlerGuard)

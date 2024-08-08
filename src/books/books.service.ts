@@ -107,7 +107,7 @@ export class BooksService {
 
   async find(id: number): Promise<{ data: { book: Book } } | null> {
     try {
-      const book = await Book.findByPk(id);
+      const book = await Book.findByPk(id, {include: this.defaultInclude});
       return book ? { data: { book } } : null;
     } catch (error) {
       throw new BadRequestException(`Unable to find Book with id ${id}`);

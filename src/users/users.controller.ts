@@ -17,6 +17,8 @@ import {
   BorrowBooksBodyType,
   CreateUserSchema,
   CreateUserType,
+  ReturnBooksBodySchema,
+  ReturnBooksBodyType,
   UpdateUserSchema,
   UpdateUserType,
   UserQuerySchema,
@@ -82,26 +84,23 @@ export class UsersController {
     if (error) {
       throw new BadRequestException(error);
     }
-    return created_borrowings;
+    return { data: { borrowings: created_borrowings } };
   }
 
   @Post(':id/return')
   async restore(
     @Param('id') id: string,
-    @Body(new ValidationPipe(BorrowBooksBodySchema))
-    borrowBody: BorrowBooksBodyType,
+    @Body(new ValidationPipe(ReturnBooksBodySchema))
+    borrowBody: ReturnBooksBodyType,
   ) {
-    const borrowings = borrowBody.borrowings.map((element) => {
-      return { ...element, user_id: +id };
-    });
     const [restored_borrowings, error] = await this.usersService.restore(
       +id,
-      borrowings,
+      borrowBody.books,
     );
 
     if (error) {
       throw new BadRequestException(error);
     }
-    return restored_borrowings;
+    return { data: { returned_borrowings: restored_borrowings } };
   }
 }
