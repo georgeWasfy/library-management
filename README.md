@@ -212,3 +212,17 @@
 ```yaml
 > All endpoints are authenticated except signin&signup and should have bearer token header obtained from signin or signup endpoints
 ```
+
+### How to run locally
+```yaml
+> create a .env file using .env.example as reference.
+> create a database locally on your machine with same name as provided in .env file (mysql).
+> npm install
+> npm run start
+```
+
+### How to run using docker
+```yaml
+> create a .env file using .env.example as reference.
+> docker compose up
+```
