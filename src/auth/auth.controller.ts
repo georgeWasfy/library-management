@@ -13,7 +13,7 @@ import {
 import { ValidationPipe } from '@base/pipes/validation.pipe';
 import { GetCurrentUser } from './decorator/current-user.decorator';
 
-@Controller('/api/auth')
+@Controller({ version: '1', path: 'auth' })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

@@ -11,6 +11,8 @@ import { ConfigService } from '@nestjs/config';
 import { SignInType, SignUpType, Tokens } from './dto/auth.schema';
 import { UsersService } from '@base/users/users.service';
 import { User } from '@base/users/models/user.model';
+import { Sequelize } from 'sequelize-typescript';
+import { Transaction, ValidationError } from 'sequelize';
 
 @Injectable()
 export class AuthService {
@@ -18,14 +20,15 @@ export class AuthService {
     private jwtService: JwtService,
     private configService: ConfigService,
     private userService: UsersService,
+    private readonly sequelize: Sequelize,
   ) {}
   hashPassword(password: string) {
     return bcrypt.hash(password, 10);
   }
 
-  async generateTokens(userKey: number, email: string): Promise<Tokens> {
+  async generateTokens(userId: number, email: string): Promise<Tokens> {
     const jwtPayload = {
-      sub: userKey,
+      sub: userId,
       email: email,
     };
 
@@ -46,7 +49,11 @@ export class AuthService {
     };
   }
 
-  async updateRtHash(userId: number, rt: string): Promise<void> {
+  async updateRtHash(
+    userId: number,
+    rt: string,
+    transaction?: Transaction,
+  ): Promise<void> {
     const hash = await this.hashPassword(rt);
     await User.update(
       {
@@ -54,44 +61,48 @@ export class AuthService {
       },
       {
         where: { id: userId },
+        transaction: transaction ?? undefined,
       },
     );
   }
 
   async localSignUp(signupDto: SignUpType): Promise<Tokens> {
-    var tokens = { access_token: '', refresh_token: '' };
+    const transaction = await this.sequelize.transaction();
     try {
       const hashedPassword = await this.hashPassword(signupDto.password);
       signupDto.password = hashedPassword;
-      const userByEmail = await User.findOne({
-        where: { email: signupDto.email },
-      });
-      if (userByEmail)
-        throw new BadRequestException('User with this email already exist');
-      const createdUser = await this.userService.create(signupDto);
-      if (createdUser) {
-        const tokens = await this.generateTokens(
-          createdUser.data.user.id,
-          createdUser.data.user.email,
-        );
-        await this.updateRtHash(createdUser.data.user.id, tokens.refresh_token);
-      } else {
-        throw new HttpException(
-          'Could not create User',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      const createdUser = await User.create(signupDto, { transaction });
+
+      const tokens = await this.generateTokens(
+        createdUser.id,
+        createdUser.email,
+      );
+      await this.updateRtHash(
+        createdUser.id,
+        tokens.refresh_token,
+        transaction,
+      );
+      await transaction.commit();
       return tokens;
-    } catch (err) {
-      throw new HttpException(err, HttpStatus.BAD_REQUEST);
+    } catch (error) {
+      await transaction.rollback();
+      if (error instanceof ValidationError) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+          throw new BadRequestException(
+            'A User with same email already exists',
+          );
+        }
+      }
+      throw new BadRequestException('Unable to create User');
     }
   }
 
   async localSignIn(signinDto: SignInType) {
-    var tokens = { access_token: '', refresh_token: '' };
+    let tokens = { access_token: '', refresh_token: '' };
     try {
       const userByEmail = await User.findOne({
         where: { email: signinDto.email },
+        attributes: {include: ['name', 'email', 'password', 'is_active', 'created_at', 'updated_at']}
       });
       if (userByEmail) {
         const matchPasswords = await bcrypt.compare(
@@ -105,8 +116,7 @@ export class AuthService {
       } else {
         throw new ForbiddenException('Access Denied');
       }
-
-      return { ...tokens, ...userByEmail };
+      return { ...tokens, ...userByEmail.dataValues };
     } catch (err) {
       throw new HttpException(err, HttpStatus.BAD_REQUEST);
     }
@@ -124,7 +134,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, refresh_token: string): Promise<Tokens> {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, { attributes: { include: ['hashedRt', 'id', 'email']}});
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
     const matchTokens = await bcrypt.compare(refresh_token, user.hashedRt!);
     if (!matchTokens) throw new ForbiddenException('Access Denied');

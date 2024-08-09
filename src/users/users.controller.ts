@@ -49,7 +49,7 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     const user = await this.usersService.find(+id);
     if (!user) {
-      throw new NotFoundException('Book Not Found');
+      throw new NotFoundException('User Not Found');
     }
     return user;
   }

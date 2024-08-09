@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { UsersModule } from './users/users.module';
 import databaseConfig from '../config/database.config';
+import tokenConfig from '../config/token.config';
 import { User } from './users/models/user.model';
 import { BooksModule } from './books/books.module';
 import { Book } from './books/models/book.model';
@@ -15,7 +16,7 @@ import { AuthModule } from './auth/auth.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig],
+      load: [databaseConfig, tokenConfig],
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],

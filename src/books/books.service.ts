@@ -59,6 +59,12 @@ export class BooksService {
     try {
       if (filters && Object.keys(filters).length > 0) {
         defaultWhere = this.parseFilters(filters);
+        if (filters?.is_borrowed !== undefined) {
+          defaultInclude = {
+            ...defaultInclude,
+            required: true,
+          };
+        }
         if (filters?.is_overdue !== undefined) {
           defaultInclude = {
             ...defaultInclude,
@@ -69,6 +75,7 @@ export class BooksService {
               due_date: filters.is_overdue
                 ? { [Op.lt]: Date.now() }
                 : { [Op.gt]: Date.now() },
+              is_returned: false,
             },
           };
         }

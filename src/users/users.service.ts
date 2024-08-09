@@ -78,7 +78,6 @@ export class UsersService {
       const user = await User.findByPk(id, { include: this.defaultInclude});
       return user ? { data: { user } } : null;
     } catch (error) {
-      console.log("🚀 ~ UsersService ~ find ~ error:", error)
       throw new BadRequestException(`Unable to find user with id ${id}`);
     }
   }
