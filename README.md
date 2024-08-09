@@ -116,6 +116,28 @@
     <code>**description**: Delete single book by id</code>
 
 
+### Reports
+* Exposed Endpoints:
+
+  * [GET] /api/v1/reports/generate?filters[from]=2024-08-07T09:35:46Z&filters[is_overdue]=true&
+  filters[to]=2024-10-07T09:35:46Z
+  <code>**description**: Generate a report with all borrowings that happened between specific time period</code>
+
+    **response**
+      ```json
+        {
+            "data": {
+                  "fileId": "1723199106869"
+              }
+        }
+      ```
+
+  * [GET] /api/v1/reports/[fileId]/download
+  
+  <code>**description**: Download the report as excel file using fileId obtained from /api/v1/reports/generate endpoint </code>
+
+
+
 ### Borrowings
 * Data schema
 	* **id** : number
@@ -128,3 +150,65 @@
   * **return_date** : date
   * **due_date** : date
 
+### Auth
+* Exposed Endpoints:
+
+  * [POST] /api/v1/auth/local/signup
+  <code>**description**:  create a user and obtain access and refresh tokens</code>
+   **body**
+    ```json
+      {
+          "name": "test",
+          "email": "test@gmail.com",
+          "password": "123456"
+      }
+    ```
+    **response**
+      ```json
+        {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsImlhdCI6MTcyMzE5Nzk2MSwiZXhwIjoxNzIzMjAxNTYxfQ.ADRBHxQsMPzz1E4ghfgc4LoUpLkEsy8AkeO1oOmsDAE"
+        }
+      ```
+
+  * [POST] /api/v1/auth/local/signin
+    <code>**description**:  sign in user and obtain access and refresh token</code>
+    **body**
+    ```json
+    {
+        "email": "test@gmail.com",
+        "password": "123456"
+    }
+    ```
+
+    **response**
+      ```json
+        {
+            "user": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsImlhdCI6MTcyMzE5ODUwNiwiZXhwIjoxNzIzMjAyMTA2fQ.OYCX9fH9Sfp3bfBhpNJnD_d8O150Sxs2Q5GifnvzkY8",
+                "id": 18,
+                "name": "user2",
+                "email": "test2@gmail.com",
+                "is_active": true,
+                "created_at": "2024-08-09T10:06:01.000Z",
+                "updated_at": "2024-08-09T10:06:01.000Z"
+            }
+        }
+      ```
+
+  * [POST] /api/v1/auth/local/refresh
+  <code>**description**:  obtain new access token </code>
+   **body**
+    ```json
+      {
+      }
+    ```
+    **response**
+      ```json
+        {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE4LCJlbWFpbCI6InRlc3QyQGdtYWlsLmNvbSIsImlhdCI6MTcyMzE5Nzk2MSwiZXhwIjoxNzIzMjAxNTYxfQ.ADRBHxQsMPzz1E4ghfgc4LoUpLkEsy8AkeO1oOmsDAE"
+        }
+      ```
+
+```yaml
+> All endpoints are authenticated except signin&signup and should have bearer token header obtained from signin or signup endpoints
+```
