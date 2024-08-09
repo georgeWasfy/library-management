@@ -1,73 +1,131 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Library-Managemet
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# Main Entities
+1. users 
+2. books 
+3. borrowings
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Users
+* Data schema
+	* **id** : number
+	* **name** : string
+	* **email** : string
+	* **is_active** : boolean
+	* **password** : string
+	* **hashedRt** : string
+	* **created_at** : date
+	* **updated_at** : date
+* Exposed Endpoints:
 
-## Description
+  * [GET] /api/v1/users?paging[page]=1&paging[per_page]=20
+  <code>**description**: Get All users paginated</code>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  * [GET] /api/v1/users/[userId]
+  <code>**description**: Get single user by id</code>
 
-## Installation
+  * [DELETE] /api/v1/users/[userId]
+  <code>**description**: Delete single user by id</code>
 
-```bash
-$ npm install
+  * [POST] /api/v1/users/[userId]/borrow
+  <code>**description**:  let user borrow one or more books</code>
+   **body**
+   ```json
+{
+        "borrowings": [
+            {
+                "book_id": 2,
+                "due_date": "2024-08-07T21:00:00.000Z"
+            },
+            {
+                "book_id": 3,
+                "due_date": "2024-08-07T21:00:00.000Z"
+            }
+        ]
+}
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+  * [POST] /api/v1/users/[userId]/return
+  <code>**description**:  let user return one or more books that they already borrowed</code>
+  **body**
+  ```json
+{
+        "books": [
+            1,
+            3
+        ]
+}
 ```
 
-## Test
 
-```bash
-# unit tests
-$ npm run test
 
-# e2e tests
-$ npm run test:e2e
+### Books
+* Data schema
+	* **id** : number
+	* **title** : string
+	* **author** : string
+	* **isbn**: number
+	* **total_quantity** :  number
+	* **available_quantity** :  number
+	* **shelf_location** : string
+	* **created_at** : date
+	* **updated_at** : date
 
-# test coverage
-$ npm run test:cov
+* Exposed Endpoints
+  * [POST] /api/v1/books
+    <code>**description**: Create single book</code>
+	  **body**
+	  ```json
+{
+      "title": "book2",
+      "author": "author1",
+      "isbn": 12345,
+      "total_quantity": 10,
+      "shelf_location": "d5"
+}
 ```
 
-## Support
+  * [PATCH] /api/v1/books/[bookId]
+  <code>**description**: Update single book</code>
+    **body**
+      ```yaml
+      {
+        "title": "book2",
+        "author": "author1",
+        "isbn": 12345,
+        "total_quantity": 10,
+        "available_quantity": 10,
+        "shelf_location": "d5"
+        }
+      ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+  * [GET] /api/v1/books? paging[page]=1&paging[per_page]=20&filters[is_overdue]=true&filters[is_overdue]=true&filters[author]=[author]&filters[title]=[title]&filters[isbn]=[isbn]
+  
+    <code> **description**: Get All books paginated with options to filter data</code>
+	
+	<code> **Available FIlters: **</code>
+	  ```json
+ author: string
+ title: string
+ isbn: number
+ overdue books: true | false
+```
 
-## Stay in touch
+  * [GET] /api/v1/books/[bookId]
+    <code>**description**: Get single book by id</code>
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+ * [DELETE] /api/v1/books/[bookId]
+    <code>**description**: Delete single book by id</code>
 
-## License
 
-Nest is [MIT licensed](LICENSE).
+### Borrowings
+* Data schema
+	* **id** : number
+	* **book_id** : number: foreign key ref to **books** table
+	* **user_id** : number: foreign key ref to **users** table
+	* **is_returned** : boolean
+	* **is_returned** : boolean
+  * **created_at** : date
+	* **updated_at** : date
+  * **return_date** : date
+	* **due_date** : date
+
