@@ -98,7 +98,7 @@
       }
     ```
 
-  * [GET] /api/v1/books? paging[page]=1&paging[per_page]=20&filters[is_overdue]=true&filters[is_overdue]=true&filters[author]=[author]&filters[title]=[title]&filters[isbn]=[isbn]
+  * [GET] /api/v1/books?paging[page]=1&paging[per_page]=20&filters[is_overdue]=true&filters[is_borrowed]=true&filters[author]=[author]&filters[title]=[title]&filters[isbn]=[isbn]
     <code> **description**: Get All books paginated with options to filter data</code>
 	
 	<code> Available FIlters:</code>
@@ -133,7 +133,7 @@
       ```
 
   * [GET] /api/v1/reports/[fileId]/download
-  
+
   <code>**description**: Download the report as excel file using fileId obtained from /api/v1/reports/generate endpoint </code>
 
 

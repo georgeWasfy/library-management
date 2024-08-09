@@ -15,6 +15,10 @@ services:
         - DB_PORT=${DB_PORT}
         - DB_USER=${DB_USER}
         - DB_PASS=${DB_PASS}
+        - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+        - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+        - ACCESS_TOKEN_EXPIRY=${ACCESS_TOKEN_EXPIRY}
+        - REFRESH_TOKEN_EXPIRY=${REFRESH_TOKEN_EXPIRY}
   db:
       image: mysql:8
       container_name: project_db

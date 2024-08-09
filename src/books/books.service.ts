@@ -62,7 +62,11 @@ export class BooksService {
         if (filters?.is_borrowed !== undefined) {
           defaultInclude = {
             ...defaultInclude,
-            required: true,
+            required: filters.is_borrowed,
+            where: {
+              ...defaultInclude.where,
+              is_returned: false,
+            },
           };
         }
         if (filters?.is_overdue !== undefined) {
