@@ -17,6 +17,7 @@ import { TransformationPipe } from '@base/pipes/transformation.pipe';
 import { ValidationPipe } from '@base/pipes/validation.pipe';
 import { ReportFiltersSchema, ReportQueryType } from './dto/report.schema';
 import { ThrottlerGuard } from '@nestjs/throttler';
+import { Public } from '@base/auth/decorator/public.decorator';
 
 @Controller({ version: '1', path: 'reports' })
 export class ReportsController {
@@ -33,6 +34,7 @@ export class ReportsController {
 
   @UseGuards(ThrottlerGuard)
   @Get(':id/download')
+  @Public()
   @Header('Content-Type', 'text/xlsx')
   async download(@Param('id') id: string, @Res() res: Response) {
     const result = await this.reportsService.download(+id);
